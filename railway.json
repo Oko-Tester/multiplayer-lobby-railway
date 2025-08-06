@@ -1,0 +1,28 @@
+{
+  "services": [
+    {
+      "name": "lobby-server",
+      "type": "docker",
+      "dockerfilePath": "server/Dockerfile",
+      "build": {},
+      "start": "node index.js",
+      "env": {
+        "PORT": "3000"
+      }
+    },
+    {
+      "name": "lobby-client",
+      "type": "docker",
+      "dockerfilePath": "client/Dockerfile",
+      "build": {},
+      "start": "nginx -g 'daemon off;'"
+    }
+  ],
+  "plugins": [
+    {
+      "name": "redis",
+      "service": "lobby-server",
+      "type": "redis"
+    }
+  ]
+}

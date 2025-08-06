@@ -1,0 +1,22 @@
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Multiplayer Lobby</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
+  <script type="module" src="index.js"></script>
+  <style>
+    body { margin: 0; padding: 0; overflow: hidden; }
+    #chat { position: absolute; top: 0; right: 0; width: 200px; background: rgba(255,255,255,0.8); }
+    #chat input { width: 100%; box-sizing: border-box; }
+  </style>
+</head>
+<body>
+  <div id="game-container"></div>
+  <div id="chat">
+    <div id="messages"></div>
+    <input id="msgInput" placeholder="Enter message..." />
+  </div>
+</body>
+</html>
