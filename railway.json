@@ -3,19 +3,35 @@
     {
       "name": "lobby-server",
       "type": "docker",
-      "dockerfilePath": "server/Dockerfile",
-      "build": {},
+      "build": {
+        "dockerfilePath": "server/Dockerfile",
+        "context": "."
+      },
       "start": "node index.js",
       "env": {
-        "PORT": "3000"
+        "PORT": {
+          "fromEnv": "PORT",
+          "default": "3000"
+        },
+        "REDIS_URL": {
+          "fromPlugin": "redis"
+        }
       }
     },
     {
       "name": "lobby-client",
       "type": "docker",
-      "dockerfilePath": "client/Dockerfile",
-      "build": {},
-      "start": "nginx -g 'daemon off;'"
+      "build": {
+        "dockerfilePath": "client/Dockerfile",
+        "context": "."
+      },
+      "start": "nginx -g 'daemon off;'",
+      "env": {
+        "PORT": {
+          "fromEnv": "PORT",
+          "default": "80"
+        }
+      }
     }
   ],
   "plugins": [
