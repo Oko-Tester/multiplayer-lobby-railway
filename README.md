@@ -109,5 +109,5 @@ Changes committen
 Pull Request öffnen
 Gebaut für die Railway Community 🚂
 
-Haben Sie Fragen? Öffnen Sie ein Issue oder kontaktieren Sie uns auf Discord!
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/YOUR_TEMPLATE_ID)
 
