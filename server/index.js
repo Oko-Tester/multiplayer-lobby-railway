@@ -176,6 +176,6 @@ app.get("/api/lobbies", async (req, res) => {
 });
 
 const URL = process.env.RAILWAY_PUBLIC_DOMAIN;
-httpServer.listen(PORT, () => {
+httpServer.listen(URL, () => {
   console.log(`🚀 Multiplayer Server running on ${URL}`);
 });
