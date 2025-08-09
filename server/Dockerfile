@@ -2,34 +2,25 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Zuerst package.json kopieren für besseres Caching
-COPY .package*.json ./
+# Package.json kopieren
+COPY package*.json ./
 
 # Dependencies installieren
 RUN npm ci --only=production && npm cache clean --force
 
-# Quellcode kopieren
+# Server-Code kopieren
 COPY . ./
 
-# Port freigeben
+# Port setzen
+ENV PORT=3000
 EXPOSE 3000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD node -e "
-const http = require('http');
-const options = { hostname: 'localhost', port: 3000, path: '/health', timeout: 5000 };
-const req = http.request(options, (res) => { 
-if (res.statusCode === 200) process.exit(0); 
-else process.exit(1); 
-});
-req.on('error', () => process.exit(1));
-req.end();
-"
+# Non-root user für Sicherheit
+RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
 
-# Nicht-root user
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nodejs -u 1001
+# Ownership der App-Dateien ändern
+RUN chown -R nodejs:nodejs /app
+
 USER nodejs
 
 CMD ["node", "index.js"]
