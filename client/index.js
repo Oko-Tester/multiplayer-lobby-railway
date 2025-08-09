@@ -1,5 +1,26 @@
-// Socket.IO Client-Verbindung
-const socket = io("http://localhost:3000");
+let socketUrl;
+if (
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
+) {
+  // Lokale Entwicklung
+  socketUrl = "http://localhost:3000";
+} else {
+  // Production - Railway erkennt automatisch
+  socketUrl =
+    window.location.protocol === "https:"
+      ? `wss://${window.location.hostname.replace(
+          "multiplayer-client",
+          "multiplayer-server"
+        )}`
+      : `ws://${window.location.hostname.replace(
+          "multiplayer-client",
+          "multiplayer-server"
+        )}`;
+}
+
+console.log("Connecting to:", socketUrl);
+const socket = io(socketUrl);
 
 class LobbyScene extends Phaser.Scene {
   constructor() {
@@ -9,11 +30,13 @@ class LobbyScene extends Phaser.Scene {
   preload() {
     console.log("Loading assets...");
 
+    // Fallback für lokale Entwicklung - einfache colored rectangles
     this.load.image(
-      "player",
+      "player-fallback",
       "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAANSURBVBhXY3growIYAAA+AQMJxEyqAAAAAElFTkSuQmCC"
     );
 
+    // Bessere Grafik falls verfügbar
     this.load.image(
       "player-sprite",
       "https://labs.phaser.io/assets/sprites/phaser-dude.png"
@@ -26,8 +49,10 @@ class LobbyScene extends Phaser.Scene {
     this.players = {};
     this.username = "Player" + Math.floor(Math.random() * 1000);
 
+    // Background
     this.add.rectangle(400, 300, 800, 600, 0x87ceeb);
 
+    // Titel
     this.add
       .text(400, 50, "Multiplayer Lobby", {
         fontSize: "32px",
@@ -36,26 +61,40 @@ class LobbyScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
+    // Status anzeigen
     this.statusText = this.add.text(10, 10, "Verbinde...", {
       fontSize: "14px",
       fill: "#000",
     });
 
+    // Connection info
+    this.connectionInfo = this.add.text(10, 30, `Server: ${socketUrl}`, {
+      fontSize: "10px",
+      fill: "#666",
+    });
+
     console.log(`Joining lobby as: ${this.username}`);
     socket.emit("join-lobby", { username: this.username, lobbyId: "main" });
 
+    // Socket Events
     socket.on("connect", () => {
       console.log("Connected to server");
-      this.statusText.setText(`Verbunden als: ${this.username}`);
+      this.statusText.setText(`🟢 Verbunden als: ${this.username}`);
     });
 
     socket.on("disconnect", () => {
       console.log("Disconnected from server");
-      this.statusText.setText("Verbindung getrennt");
+      this.statusText.setText("🔴 Verbindung getrennt");
+    });
+
+    socket.on("connect_error", (error) => {
+      console.error("Connection error:", error);
+      this.statusText.setText("❌ Verbindungsfehler");
     });
 
     socket.on("lobby-state", ({ players }) => {
       console.log("Received lobby state:", players);
+      // Existierende Spieler hinzufügen
       Object.entries(players).forEach(([id, username]) => {
         if (id !== socket.id && !this.players[id]) {
           this.createPlayer(id, username);
@@ -79,9 +118,11 @@ class LobbyScene extends Phaser.Scene {
       console.log(`Player action: ${id} -> ${action}`);
       const player = this.players[id];
       if (player && action === "move") {
+        // Einfache Bewegung
         player.sprite.x = Math.min(750, player.sprite.x + 20);
         player.label.x = player.sprite.x;
 
+        // Reset position wenn am Rand
         if (player.sprite.x >= 750) {
           player.sprite.x = 50;
           player.label.x = 50;
@@ -89,11 +130,13 @@ class LobbyScene extends Phaser.Scene {
       }
     });
 
+    // Klick-Handler für Bewegung
     this.input.on("pointerdown", () => {
       console.log("Sending move action");
       socket.emit("player-action", { lobbyId: "main", action: "move" });
     });
 
+    // Instruktionen
     this.add
       .text(400, 550, "Klicken Sie um sich zu bewegen • Chat rechts", {
         fontSize: "14px",
@@ -107,6 +150,8 @@ class LobbyScene extends Phaser.Scene {
     const x = Math.random() * 600 + 100;
     const y = Math.random() * 300 + 200;
 
+    // Versuche sprite zu verwenden, fallback auf rectangle
+    let sprite;
     try {
       sprite = this.add.sprite(x, y, "player-sprite");
       sprite.setScale(0.5);
@@ -140,6 +185,7 @@ class LobbyScene extends Phaser.Scene {
   }
 }
 
+// Phaser Game konfigurieren
 const config = {
   type: Phaser.AUTO,
   width: 800,
@@ -152,6 +198,7 @@ const config = {
 console.log("Starting Phaser game...");
 const game = new Phaser.Game(config);
 
+// Chat-System
 const msgInput = document.getElementById("msgInput");
 const messages = document.getElementById("messages");
 
@@ -182,6 +229,7 @@ if (msgInput && messages) {
   });
 }
 
+// Debug-Informationen
 console.log("Client initialized");
 socket.on("connect", () => console.log("Socket connected:", socket.id));
 socket.on("disconnect", () => console.log("Socket disconnected"));

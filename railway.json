@@ -6,38 +6,5 @@
   "deploy": {
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
-  },
-  "services": [
-    {
-      "name": "multiplayer-server",
-      "source": {
-        "type": "dockerfile",
-        "dockerfilePath": "server/Dockerfile"
-      },
-      "variables": {
-        "PORT": "3000",
-        "NODE_ENV": "production"
-      },
-      "domains": [
-        {
-          "host": "multiplayer-server"
-        }
-      ]
-    },
-    {
-      "name": "multiplayer-client",
-      "source": {
-        "type": "dockerfile",
-        "dockerfilePath": "client/Dockerfile"
-      },
-      "variables": {
-        "PORT": "80"
-      },
-      "domains": [
-        {
-          "host": "multiplayer-client"
-        }
-      ]
-    }
-  ]
+  }
 }
