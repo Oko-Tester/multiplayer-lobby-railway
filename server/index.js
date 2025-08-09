@@ -43,7 +43,7 @@ const lobbies = new Map();
 
 async function addPlayerToLobby(lobbyId, playerId, username) {
   if (redisClient) {
-    await redisClient.hset(`lobby:${lobbyId}`, playerId, username);
+    await redisClient.hSet(`lobby:${lobbyId}`, playerId, username);
   } else {
     if (!lobbies.has(lobbyId)) {
       lobbies.set(lobbyId, new Map());
@@ -54,7 +54,7 @@ async function addPlayerToLobby(lobbyId, playerId, username) {
 
 async function removePlayerFromLobby(lobbyId, playerId) {
   if (redisClient) {
-    await redisClient.hdel(`lobby:${lobbyId}`, playerId);
+    await redisClient.hDel(`lobby:${lobbyId}`, playerId);
   } else {
     if (lobbies.has(lobbyId)) {
       lobbies.get(lobbyId).delete(playerId);
@@ -64,7 +64,7 @@ async function removePlayerFromLobby(lobbyId, playerId) {
 
 async function getLobbyPlayers(lobbyId) {
   if (redisClient) {
-    return await redisClient.hgetall(`lobby:${lobbyId}`);
+    return await redisClient.hGetAll(`lobby:${lobbyId}`);
   } else {
     const lobby = lobbies.get(lobbyId);
     return lobby ? Object.fromEntries(lobby) : {};
@@ -102,6 +102,7 @@ io.on("connection", (socket) => {
       data,
       timestamp: Date.now(),
     });
+    console.log(`🎯 Player ${socket.id} action: ${action} in lobby ${lobbyId}`);
   });
 
   socket.on("chat-message", async ({ lobbyId = "main", message }) => {
@@ -117,6 +118,8 @@ io.on("connection", (socket) => {
         message: message.trim(),
         timestamp: Date.now(),
       });
+
+      console.log(`💬 Chat message from ${username}: ${message.trim()}`);
     } catch (error) {
       console.error("Error sending chat message:", error);
     }
@@ -146,6 +149,7 @@ app.get("/health", (req, res) => {
     status: "healthy",
     timestamp: new Date().toISOString(),
     connections: io.engine.clientsCount,
+    redis_connected: !!redisClient,
   });
 });
 
@@ -160,7 +164,7 @@ app.get("/api/lobbies", async (req, res) => {
       const keys = await redisClient.keys("lobby:*");
       for (const key of keys) {
         const lobbyId = key.replace("lobby:", "");
-        const playerCount = await redisClient.hlen(key);
+        const playerCount = await redisClient.hLen(key);
         stats.lobbies[lobbyId] = { players: playerCount };
       }
     } else {
@@ -171,6 +175,7 @@ app.get("/api/lobbies", async (req, res) => {
 
     res.json(stats);
   } catch (error) {
+    console.error("Error getting lobby stats:", error);
     res.status(500).json({ error: "Failed to get lobby stats" });
   }
 });
