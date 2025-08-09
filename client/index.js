@@ -1,4 +1,9 @@
 const socketUrl = (() => {
+  if (window._env_ && window._env_.SERVER_URL) {
+    console.log("Using Railway SERVER_URL:", window._env_.SERVER_URL);
+    return window._env_.SERVER_URL;
+  }
+
   const currentHost = window.location.hostname;
   const protocol = window.location.protocol;
 
@@ -6,6 +11,16 @@ const socketUrl = (() => {
     currentHost.includes("railway.app") ||
     currentHost.includes("up.railway.app")
   ) {
+    const projectMatch = currentHost.match(/([^.]+)\.up\.railway\.app/);
+    if (projectMatch) {
+      const projectPrefix = projectMatch[1];
+      const serverHost = projectPrefix
+        .replace("client", "server")
+        .replace("-client", "-server");
+      const serverUrl = `https://${serverHost}.up.railway.app`;
+      console.log("Auto-detected Railway server URL:", serverUrl);
+      return serverUrl;
+    }
     return `https://multiplayer-server.up.railway.app`;
   }
 
@@ -142,12 +157,14 @@ class LobbyScene extends Phaser.Scene {
       }
     });
 
+    // Klick-Handler
     this.input.on("pointerdown", (pointer) => {
       console.log("Sending move action");
       socket.emit("player-action", { lobbyId: "main", action: "move" });
       this.createClickEffect(pointer.x, pointer.y);
     });
 
+    // Instruktionen
     this.add
       .text(
         this.cameras.main.centerX,
@@ -163,6 +180,7 @@ class LobbyScene extends Phaser.Scene {
   }
 
   createBackgroundElements() {
+    // Einfache animierte Kreise im Hintergrund
     for (let i = 0; i < 15; i++) {
       const circle = this.add.circle(
         Math.random() * this.cameras.main.width,
@@ -187,6 +205,7 @@ class LobbyScene extends Phaser.Scene {
     const x = Math.random() * (this.cameras.main.width - 200) + 100;
     const y = Math.random() * 200 + 200;
 
+    // Player Sprite
     let sprite;
     try {
       sprite = this.add.sprite(x, y, "player-sprite");
@@ -196,6 +215,7 @@ class LobbyScene extends Phaser.Scene {
       sprite = this.add.circle(x, y, 20, 0x3b82f6);
     }
 
+    // Username Label mit Hintergrund
     const labelBg = this.add.rectangle(x, y - 35, 0, 20, 0x1f2937, 0.8);
     labelBg.setStrokeStyle(1, 0x3b82f6, 0.5);
 
@@ -217,6 +237,7 @@ class LobbyScene extends Phaser.Scene {
       username: username,
     };
 
+    // Einfache Eingangs-Animation
     sprite.setAlpha(0);
     this.tweens.add({
       targets: [sprite, label, labelBg],
@@ -311,6 +332,7 @@ class LobbyScene extends Phaser.Scene {
   }
 }
 
+// Phaser Game Konfiguration
 const config = {
   type: Phaser.AUTO,
   width: 800,
@@ -329,6 +351,7 @@ const config = {
 console.log("Starting Phaser game...");
 const game = new Phaser.Game(config);
 
+// Chat-System
 const msgInput = document.getElementById("msgInput");
 const messages = document.getElementById("messages");
 
@@ -363,14 +386,17 @@ if (msgInput && messages) {
     messages.appendChild(messageEl);
     messages.scrollTop = messages.scrollHeight;
 
+    // Begrenzte Nachrichten-Anzahl
     if (messages.children.length > 50) {
       messages.removeChild(messages.firstChild);
     }
   });
 }
 
+// Initiale UI-Updates
 updateChatStatus("connecting");
 
+// Debug-Informationen
 console.log("Client initialized");
 socket.on("connect", () => console.log("Socket connected:", socket.id));
 socket.on("disconnect", () => console.log("Socket disconnected"));
