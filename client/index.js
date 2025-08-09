@@ -1,4 +1,7 @@
-const socketUrl = process.env.SERVER_URL;
+const socketUrl =
+  (typeof process !== "undefined" && process.env && process.env.SERVER_URL) ||
+  (window._env_ && window._env_.SERVER_URL) ||
+  `${location.protocol}//${location.hostname}:3000`;
 
 console.log("Connecting to:", socketUrl);
 const socket = io(socketUrl);
