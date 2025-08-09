@@ -4,6 +4,8 @@ Ein vollständiges Realtime Multiplayer Lobby System mit WebSockets, perfekt fü
 
 [![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/0p6PsQ?referralCode=gOe2_D)
 
+Neu bei Railway? [Melden Sie sich über unseren Empfehlungslink](https://railway.com?referralCode=gOe2_D) an und starten Sie mit kostenlosen Credits! Empfehlungscode: gOe2_D
+
 ## ⚡ Quick Start
 
 1. Klicken Sie auf "Deploy on Railway" ⬆️
@@ -253,4 +255,4 @@ Testen Sie das Template hier: [Demo Link]
 
 Gebaut für die Railway Community 🚂
 
-**[Deploy Now](https://railway.com/deploy/0p6PsQ?referralCode=gOe2_D)** | **[Live Demo](#)** | **[Documentation](#)** | **[GitHub](#)**
+**[Deploy Now](https://railway.com/deploy/0p6PsQ?referralCode=gOe2_D)** | **[Live Demo](https://multiplayer-client-production-aec6.up.railway.app/)** | **[Documentation](#)** | **[Join Railway](https://railway.com?referralCode=gOe2_D)**

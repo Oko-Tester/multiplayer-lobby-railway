@@ -4,6 +4,8 @@ A complete real-time multiplayer lobby system with WebSockets, perfect for hacka
 
 [![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/0p6PsQ?referralCode=gOe2_D)
 
+New to Railway? [Sign up with our referral link](https://railway.com?referralCode=gOe2_D) and get started with free credits! Referral Code: gOe2_D
+
 ## ⚡ Quick Start
 
 1. Click "Deploy on Railway" ⬆️
@@ -357,4 +359,4 @@ Built with this template? Add your project:
 
 Built for the Railway Community 🚂
 
-**[Deploy Now](https://railway.com/deploy/0p6PsQ?referralCode=gOe2_D)** | **[Live Demo](#)** | **[Documentation](#)** | **[GitHub](#)**
+**[Deploy Now](https://railway.com/deploy/0p6PsQ?referralCode=gOe2_D)** | **[Live Demo](https://multiplayer-client-production-aec6.up.railway.app/)** | **[Documentation](#)** | **[Join Railway](https://railway.com?referralCode=gOe2_D)**
