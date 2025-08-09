@@ -318,7 +318,6 @@ class LobbyScene extends Phaser.Scene {
   }
 }
 
-// Phaser Game Konfiguration
 const config = {
   type: Phaser.AUTO,
   width: 800,
@@ -337,7 +336,6 @@ const config = {
 console.log("Starting Phaser game...");
 const game = new Phaser.Game(config);
 
-// Chat-System
 const msgInput = document.getElementById("msgInput");
 const messages = document.getElementById("messages");
 
