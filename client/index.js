@@ -28,7 +28,7 @@ function updateStatus(status, message) {
   statusIndicator.className = `status-indicator ${status}`;
 
   if (status === "connected") {
-    serverInfo.textContent = `🔗 ${socketUrl}`;
+    serverInfo.textContent = `🔗 Verbunden mit Server`;
   }
 }
 
@@ -57,35 +57,37 @@ class LobbyScene extends Phaser.Scene {
     this.players = {};
     this.username = "Player" + Math.floor(Math.random() * 1000);
 
-    this.cameras.main.setBackgroundColor("#4F46E5");
+    this.cameras.main.setBackgroundColor("#667eea");
 
-    this.createBackground();
+    this.createBackgroundElements();
 
     const titleText = this.add
-      .text(400, 60, "Multiplayer Lobby", {
-        fontSize: "36px",
+      .text(this.cameras.main.centerX, 60, "Multiplayer Lobby", {
+        fontSize: "32px",
         fill: "#ffffff",
         fontFamily: "Inter, Arial",
         fontStyle: "bold",
-        stroke: "#1e1b4b",
+        stroke: "#4c1d95",
         strokeThickness: 2,
-        shadow: {
-          offsetX: 0,
-          offsetY: 4,
-          color: "#1e1b4b",
-          blur: 8,
-          fill: true,
-        },
       })
       .setOrigin(0.5);
 
     this.playerCountText = this.add
-      .text(400, 100, "🟢 Online: 1", {
+      .text(this.cameras.main.centerX, 100, "🟢 Online: 1", {
         fontSize: "16px",
-        fill: "#a5b4fc",
+        fill: "#e0e7ff",
         fontFamily: "Inter, Arial",
       })
       .setOrigin(0.5);
+
+    this.add.rectangle(
+      this.cameras.main.centerX,
+      this.cameras.main.height - 30,
+      this.cameras.main.width,
+      2,
+      0xffffff,
+      0.3
+    );
 
     console.log(`Joining lobby as: ${this.username}`);
     socket.emit("join-lobby", { username: this.username, lobbyId: "main" });
@@ -94,18 +96,18 @@ class LobbyScene extends Phaser.Scene {
       console.log("Connected to server");
       updateStatus(
         "connected",
-        `🟢 Verbunden als: <strong>${this.username}</strong>`
+        `🟢 Connected as: <strong>${this.username}</strong>`
       );
     });
 
     socket.on("disconnect", () => {
       console.log("Disconnected from server");
-      updateStatus("disconnected", "🔴 Verbindung getrennt");
+      updateStatus("disconnected", "🔴 Disconnected");
     });
 
     socket.on("connect_error", (error) => {
       console.error("Connection error:", error);
-      updateStatus("error", "❌ Verbindungsfehler");
+      updateStatus("error", "❌ Connection failed");
     });
 
     socket.on("lobby-state", ({ players }) => {
@@ -124,7 +126,7 @@ class LobbyScene extends Phaser.Scene {
       console.log(`Player joined: ${username} (${id})`);
       if (id !== socket.id) {
         this.createPlayer(id, username);
-        this.showNotification(`${username} ist beigetreten`, "#22c55e");
+        this.showNotification(`${username} has joined`, "#22c55e");
       }
       this.updatePlayerCount();
     });
@@ -134,7 +136,7 @@ class LobbyScene extends Phaser.Scene {
       if (this.players[id]) {
         const username = this.players[id].username;
         this.removePlayer(id);
-        this.showNotification(`${username} hat verlassen`, "#ef4444");
+        this.showNotification(`${username} has left`, "#ef4444");
       }
       this.updatePlayerCount();
     });
@@ -150,33 +152,37 @@ class LobbyScene extends Phaser.Scene {
     this.input.on("pointerdown", (pointer) => {
       console.log("Sending move action");
       socket.emit("player-action", { lobbyId: "main", action: "move" });
-
       this.createClickEffect(pointer.x, pointer.y);
     });
 
     this.add
-      .text(400, 550, "Klicken Sie irgendwo um sich zu bewegen", {
-        fontSize: "14px",
-        fill: "#a5b4fc",
-        fontFamily: "Inter, Arial",
-      })
+      .text(
+        this.cameras.main.centerX,
+        this.cameras.main.height - 50,
+        "Click somewhere to move",
+        {
+          fontSize: "14px",
+          fill: "#e0e7ff",
+          fontFamily: "Inter, Arial",
+        }
+      )
       .setOrigin(0.5);
   }
 
-  createBackground() {
-    for (let i = 0; i < 20; i++) {
+  createBackgroundElements() {
+    for (let i = 0; i < 15; i++) {
       const circle = this.add.circle(
-        Math.random() * 800,
-        Math.random() * 600,
-        Math.random() * 3 + 1,
+        Math.random() * this.cameras.main.width,
+        Math.random() * this.cameras.main.height,
+        Math.random() * 4 + 2,
         0x8b5cf6,
-        0.3
+        0.2
       );
 
       this.tweens.add({
         targets: circle,
-        alpha: { from: 0.1, to: 0.5 },
-        duration: 2000 + Math.random() * 2000,
+        alpha: { from: 0.1, to: 0.4 },
+        duration: 3000 + Math.random() * 2000,
         yoyo: true,
         repeat: -1,
         ease: "Sine.easeInOut",
@@ -185,72 +191,60 @@ class LobbyScene extends Phaser.Scene {
   }
 
   createPlayer(id, username) {
-    const x = Math.random() * 600 + 100;
-    const y = Math.random() * 300 + 200;
+    const x = Math.random() * (this.cameras.main.width - 200) + 100;
+    const y = Math.random() * 200 + 200;
 
     let sprite;
     try {
       sprite = this.add.sprite(x, y, "player-sprite");
-      sprite.setScale(0.6);
+      sprite.setScale(0.5);
     } catch (error) {
-      console.log("Using modern fallback sprite");
-      sprite = this.add.circle(x, y, 24, 0x3b82f6);
+      console.log("Using fallback sprite");
+      sprite = this.add.circle(x, y, 20, 0x3b82f6);
     }
 
-    const labelBg = this.add.rectangle(x, y - 40, 0, 24, 0x1f2937, 0.9);
-    labelBg.setStrokeStyle(1, 0x3b82f6);
+    const labelBg = this.add.rectangle(x, y - 35, 0, 20, 0x1f2937, 0.8);
+    labelBg.setStrokeStyle(1, 0x3b82f6, 0.5);
 
     const label = this.add
-      .text(x, y - 40, username, {
-        fontSize: "12px",
+      .text(x, y - 35, username, {
+        fontSize: "11px",
         fill: "#ffffff",
         fontFamily: "Inter, Arial",
         fontWeight: "500",
       })
       .setOrigin(0.5);
 
-    labelBg.width = label.width + 16;
-
-    const glow = this.add.circle(x, y, 30, 0x3b82f6, 0.2);
+    labelBg.width = label.width + 12;
 
     this.players[id] = {
       sprite,
       label,
       labelBg,
-      glow,
       username: username,
     };
 
-    sprite.setScale(0);
+    sprite.setAlpha(0);
     this.tweens.add({
-      targets: sprite,
-      scaleX: 0.6,
-      scaleY: 0.6,
+      targets: [sprite, label, labelBg],
+      alpha: 1,
       duration: 300,
-      ease: "Back.easeOut",
+      ease: "Power2.easeOut",
     });
 
     console.log(`Created player: ${username} at (${x}, ${y})`);
   }
 
   animatePlayerMovement(player) {
-    const newX = Math.min(750, player.sprite.x + 50);
-    const resetX = newX >= 750 ? 50 : newX;
-    const finalX = newX >= 750 ? 50 : newX;
+    const currentX = player.sprite.x;
+    const newX = Math.min(this.cameras.main.width - 50, currentX + 50);
+    const finalX = newX >= this.cameras.main.width - 50 ? 50 : newX;
 
     this.tweens.add({
-      targets: [player.sprite, player.label, player.labelBg, player.glow],
+      targets: [player.sprite, player.label, player.labelBg],
       x: finalX,
-      duration: 300,
+      duration: 400,
       ease: "Power2.easeOut",
-    });
-
-    this.tweens.add({
-      targets: player.glow,
-      alpha: { from: 0.4, to: 0.1 },
-      duration: 200,
-      yoyo: true,
-      ease: "Power2.easeInOut",
     });
   }
 
@@ -259,9 +253,9 @@ class LobbyScene extends Phaser.Scene {
 
     this.tweens.add({
       targets: effect,
-      radius: 30,
+      radius: 25,
       alpha: 0,
-      duration: 400,
+      duration: 300,
       ease: "Power2.easeOut",
       onComplete: () => effect.destroy(),
     });
@@ -269,13 +263,13 @@ class LobbyScene extends Phaser.Scene {
 
   showNotification(message, color) {
     const notification = this.add
-      .text(400, 150, message, {
-        fontSize: "16px",
+      .text(this.cameras.main.centerX, 140, message, {
+        fontSize: "14px",
         fill: color,
         fontFamily: "Inter, Arial",
         fontWeight: "500",
         backgroundColor: "#ffffff",
-        padding: { x: 16, y: 8 },
+        padding: { x: 12, y: 6 },
       })
       .setOrigin(0.5);
 
@@ -308,16 +302,14 @@ class LobbyScene extends Phaser.Scene {
     const player = this.players[id];
     if (player) {
       this.tweens.add({
-        targets: [player.sprite, player.label, player.labelBg, player.glow],
+        targets: [player.sprite, player.label, player.labelBg],
         alpha: 0,
-        scale: 0,
         duration: 200,
         ease: "Power2.easeIn",
         onComplete: () => {
           player.sprite.destroy();
           player.label.destroy();
           player.labelBg.destroy();
-          player.glow.destroy();
         },
       });
       delete this.players[id];
@@ -326,28 +318,26 @@ class LobbyScene extends Phaser.Scene {
   }
 }
 
+// Phaser Game Konfiguration
 const config = {
   type: Phaser.AUTO,
   width: 800,
   height: 600,
   parent: "game-container",
   scene: [LobbyScene],
-  backgroundColor: "#4F46E5",
-  physics: {
-    default: "arcade",
-    arcade: {
-      gravity: { y: 0 },
-    },
-  },
+  backgroundColor: "#667eea",
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
+    width: 800,
+    height: 600,
   },
 };
 
 console.log("Starting Phaser game...");
 const game = new Phaser.Game(config);
 
+// Chat-System
 const msgInput = document.getElementById("msgInput");
 const messages = document.getElementById("messages");
 
@@ -388,7 +378,7 @@ if (msgInput && messages) {
   });
 }
 
-updateStatus("connecting", '<span class="loading-spinner"></span> Verbinde...');
+updateStatus("connecting", '<span class="loading-spinner"></span> Connect...');
 serverInfo.textContent = `🔗 ${socketUrl}`;
 
 console.log("Client initialized");
