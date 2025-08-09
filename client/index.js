@@ -1,7 +1,25 @@
-const socketUrl =
-  (typeof process !== "undefined" && process.env && process.env.SERVER_URL) ||
-  (window._env_ && window._env_.SERVER_URL) ||
-  `${location.protocol}//${location.hostname}:3000`;
+// Server URL bestimmen - browser-kompatibel
+const socketUrl = (() => {
+  const currentHost = window.location.hostname;
+  const protocol = window.location.protocol;
+
+  // Für Railway Production: verwende die spezifische Server-Domain
+  if (
+    currentHost.includes("railway.app") ||
+    currentHost.includes("up.railway.app")
+  ) {
+    // Falls wir auf der Client-Domain sind, verbinde zum Server
+    return `https://multiplayer-server.up.railway.app`;
+  }
+
+  // Für lokale Entwicklung
+  if (currentHost === "localhost" || currentHost === "127.0.0.1") {
+    return `${protocol}//${currentHost}:3000`;
+  }
+
+  // Fallback für andere Umgebungen
+  return `${protocol}//${currentHost}:3000`;
+})();
 
 console.log("Connecting to:", socketUrl);
 const socket = io(socketUrl);

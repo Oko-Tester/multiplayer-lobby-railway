@@ -175,8 +175,11 @@ app.get("/api/lobbies", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT;
-const URL = process.env.RAILWAY_PUBLIC_DOMAIN;
+const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Multiplayer Server running on http://${URL}`);
+  const url = process.env.RAILWAY_PUBLIC_DOMAIN
+    ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+    : `http://localhost:${PORT}`;
+  console.log(`🚀 Multiplayer Server running on ${url}`);
+  console.log(`🔌 WebSocket endpoint: ${url}`);
 });
