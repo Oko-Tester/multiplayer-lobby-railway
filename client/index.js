@@ -1,3 +1,4 @@
+// Socket.IO Client-Verbindung - automatische Server-Erkennung
 let socketUrl;
 if (
   window.location.hostname === "localhost" ||
@@ -6,17 +7,12 @@ if (
   // Lokale Entwicklung
   socketUrl = "http://localhost:3000";
 } else {
-  // Production - Railway erkennt automatisch
-  socketUrl =
-    window.location.protocol === "https:"
-      ? `wss://${window.location.hostname.replace(
-          "multiplayer-client",
-          "multiplayer-server"
-        )}`
-      : `ws://${window.location.hostname.replace(
-          "multiplayer-client",
-          "multiplayer-server"
-        )}`;
+  // Production - Railway Domain ersetzen
+  const serverDomain = window.location.hostname.replace(
+    "multiplayer-client",
+    "multiplayer-server"
+  );
+  socketUrl = `https://${serverDomain}`;
 }
 
 console.log("Connecting to:", socketUrl);
