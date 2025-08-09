@@ -1,26 +1,21 @@
 FROM node:18-alpine
-
 WORKDIR /app
 
-# Package.json kopieren
+# Package.json + lock kopieren (lock sollte im Repo sein)
 COPY package*.json ./
 
-# Dependencies installieren
-RUN npm ci --only=production && npm cache clean --force
+# Dependencies deterministisch installieren
+RUN npm ci --omit=dev && npm cache clean --force
 
-# Server-Code kopieren
+# Rest des Codes kopieren
 COPY . ./
 
-# Port setzen
 ENV PORT=3000
 EXPOSE 3000
 
-# Non-root user für Sicherheit
+# Optional: non-root user (du hattest nodejs; du kannst auch den eingebauten 'node' nutzen)
 RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
-
-# Ownership der App-Dateien ändern
 RUN chown -R nodejs:nodejs /app
-
 USER nodejs
 
 CMD ["node", "index.js"]
