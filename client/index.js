@@ -1,7 +1,10 @@
 const socketUrl = (() => {
-  if (window._env_ && window._env_.SERVER_URL) {
-    console.log("Using Railway SERVER_URL:", window._env_.SERVER_URL);
-    return window._env_.SERVER_URL;
+  if (window._env_ && window._env_.MULTIPLAYER_SERVER) {
+    console.log(
+      "Using Railway MULTIPLAYER_SERVER:",
+      window._env_.MULTIPLAYER_SERVER
+    );
+    return window._env_.MULTIPLAYER_SERVER;
   }
 
   const currentHost = window.location.hostname;

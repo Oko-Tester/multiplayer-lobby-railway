@@ -2,7 +2,7 @@
 
 cat > /usr/share/nginx/html/env.js << EOF
 window._env_ = {
-  SERVER_URL: "${SERVER_URL:+https://$SERVER_URL}",
+  MULTIPLAYER_SERVER: "${MULTIPLAYER_SERVER:+https://$MULTIPLAYER_SERVER}",
 };
 EOF
 

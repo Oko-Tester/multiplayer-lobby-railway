@@ -180,7 +180,7 @@ app.get("/api/lobbies", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT ?? 3000;
 httpServer.listen(PORT, "0.0.0.0", () => {
   const url = process.env.RAILWAY_PUBLIC_DOMAIN
     ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
