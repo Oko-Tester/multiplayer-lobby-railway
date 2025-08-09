@@ -1,44 +1,43 @@
 {
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "DOCKERFILE"
+  },
+  "deploy": {
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 10
+  },
   "services": [
     {
-      "name": "lobby-server",
-      "type": "docker",
-      "build": {
-        "dockerfilePath": "server/Dockerfile",
-        "context": "."
+      "name": "multiplayer-server",
+      "source": {
+        "type": "dockerfile",
+        "dockerfilePath": "server/Dockerfile"
       },
-      "start": "node index.js",
-      "env": {
-        "PORT": {
-          "fromEnv": "PORT",
-          "default": "3000"
-        },
-        "REDIS_URL": {
-          "fromPlugin": "redis"
+      "variables": {
+        "PORT": "3000",
+        "NODE_ENV": "production"
+      },
+      "domains": [
+        {
+          "host": "multiplayer-server"
         }
-      }
+      ]
     },
     {
-      "name": "lobby-client",
-      "type": "docker",
-      "build": {
-        "dockerfilePath": "client/Dockerfile",
-        "context": "."
+      "name": "multiplayer-client",
+      "source": {
+        "type": "dockerfile",
+        "dockerfilePath": "client/Dockerfile"
       },
-      "start": "nginx -g 'daemon off;'",
-      "env": {
-        "PORT": {
-          "fromEnv": "PORT",
-          "default": "80"
+      "variables": {
+        "PORT": "80"
+      },
+      "domains": [
+        {
+          "host": "multiplayer-client"
         }
-      }
-    }
-  ],
-  "plugins": [
-    {
-      "name": "redis",
-      "service": "lobby-server",
-      "type": "redis"
+      ]
     }
   ]
 }

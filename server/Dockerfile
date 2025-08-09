@@ -1,13 +1,18 @@
 FROM node:18-alpine
+
 WORKDIR /app
 
-env PATH /app/node_modules/.bin:$PATH
-COPY server/package.json server/package-lock.json* ./
-RUN npm install --production
+COPY server/package*.json ./
 
-COPY server/index.js ./
+RUN npm ci --only=production
 
-env PORT 3000
+COPY server/ ./
+
 EXPOSE 3000
 
-CMD ["node","index.js"]
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD node healthcheck.js
+
+USER node
+
+CMD ["node", "index.js"]

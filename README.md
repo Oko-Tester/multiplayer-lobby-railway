@@ -1,78 +1,113 @@
-🎮 multiplayer-lobby-railway
-⚡ Realtime Multiplayer Lobby – gebaut mit Phaser, WebSockets und Railway!
+🎮 Multiplayer Lobby Template
 
-Dies ist ein vollständiges Railway-Template für eine einfache, interaktive Multiplayer-Lobby – perfekt für Hackathons, Game-Jams oder zum Lernen von WebSockets & Realtime-Technologien. Inklusive automatisiertem Deployment über Railway.
+Ein vollständiges Realtime Multiplayer Lobby System mit WebSockets, perfekt für Hackathons, Game Jams oder als Basis für Multiplayer-Spiele.
 
+⚡ Quick Start
+Klicken Sie auf "Deploy on Railway" ⬆️
+Warten Sie ~2-3 Minuten bis beide Services deployed sind
+Öffnen Sie die Client-URL in mehreren Tabs
+Spieler können sofort miteinander interagieren!
 🚀 Features
 🔌 WebSocket-Kommunikation mit Socket.IO
-
-🎮 Phaser.js für 2D-Visualisierung der Spieler:innen
-
-💬 Integrierter Realtime-Chat
-
-🐳 Docker-basiertes Setup für Server und Client
-
-📦 Redis-Plugin für skalierbare Kommunikation
-
-🔁 Vollautomatisches Deployment via railway.json
-
-📦 Projektstruktur
+🎮 Phaser.js Visualisierung für 2D-Spieler
+💬 Realtime Chat-System
+📦 Redis Integration für Skalierbarkeit
+🐳 Docker-basiertes Deployment
+🔄 Auto-Reconnect bei Verbindungsabbruch
+📊 Health Checks & Monitoring
+🏗️ Architektur
+┌─────────────────┐    WebSocket     ┌─────────────────┐    Redis     ┌─────────────────┐
+│                 │ ◄──────────────► │                 │ ◄──────────► │                 │
+│  Client (Nginx) │                  │ Server (Node.js)│              │ Redis (Plugin)  │
+│  - Phaser Game  │    Socket.IO     │ - Socket.IO     │   Optional   │ - Player State  │
+│  - Chat UI      │                  │ - Express API   │              │ - Lobby Data    │
+└─────────────────┘                  └─────────────────┘              └─────────────────┘
+🛠️ Lokale Entwicklung
 bash
-Kopieren
-Bearbeiten
-multiplayer-lobby-railway/
-├── server/ # Express + Socket.IO
-│ └── index.js
-├── client/ # Phaser + Chat-UI
-│ └── index.html / index.js
-├── railway.json # Deployment-Konfiguration
-🧪 Live Demo
-Sobald deployed:
-
-🎯 Client UI: https://lobby-client.<dein-projekt>.railway.app
-
-🔌 WebSocket Endpoint: wss://lobby-server.<dein-projekt>.railway.app
-
-Du kannst in mehreren Tabs joinen – jeder Spieler bekommt einen Avatar und kann Nachrichten senden.
-
-🛠️ Lokales Setup
-bash
-Kopieren
-Bearbeiten
-git clone https://github.com/dein-user/multiplayer-lobby-railway.git
-cd multiplayer-lobby-railway
+# Repository klonen
+git clone <ihr-repo-url>
+cd multiplayer-lobby-template
 
 # Server starten
-
 cd server
 npm install
-node index.js
+npm run dev
 
-# Client starten (z. B. mit Live Server Plugin oder einfachem Python HTTP Server)
-
-cd ../client
+# Client starten (in neuem Terminal)
+cd client
 python3 -m http.server 8080
-🛰️ Railway Deployment
-Importiere dieses Repo in Railway
+# Oder mit Live Server Extension in VS Code
+URLs:
 
-Railway erkennt railway.json automatisch:
+Client: http://localhost:8080
+Server: http://localhost:3000
+API Health: http://localhost:3000/health
+🎯 API Endpoints
+Endpoint	Methode	Beschreibung
+/health	GET	Server Health Check
+/api/lobbies	GET	Lobby-Statistiken
+🔌 WebSocket Events
+Client → Server
+join-lobby - Lobby beitreten
+player-action - Spieler-Aktion senden
+chat-message - Chat-Nachricht senden
+Server → Client
+player-joined - Neuer Spieler beigetreten
+player-left - Spieler hat verlassen
+player-action - Spieler-Aktion empfangen
+chat-message - Chat-Nachricht empfangen
+lobby-state - Aktueller Lobby-Status
+🔧 Konfiguration
+Umgebungsvariablen
+Variable	Standard	Beschreibung
+PORT	3000	Server Port
+NODE_ENV	development	Umgebung
+REDIS_URL	-	Redis Verbindung (optional)
+Railway-spezifisch
+Redis wird automatisch als Plugin hinzugefügt
+Domains werden automatisch konfiguriert
+Health Checks sind eingebaut
+🚀 Deployment
+Mit Railway Template
+Klicken Sie auf den Deploy-Button oben
+Forken Sie das Repository
+Railway deployed automatisch beide Services
+Manuell
+Repository in Railway importieren
+Zwei Services konfigurieren:
+Server: server/Dockerfile
+Client: client/Dockerfile
+Redis Plugin hinzufügen
+Deployen
+🎮 Erweitungsideen
+Spiel-Modi: Verschiedene Minigames implementieren
+Matchmaking: Automatische Spieler-Zuordnung
+Leaderboards: Punkte und Rankings
+KI-Bots: NPCs für Solo-Spieler
+Räume: Private/öffentliche Lobbies
+Authentication: User-Accounts & Profile
+🐛 Troubleshooting
+Client kann nicht verbinden:
 
-2 Services (Client + Server)
+Prüfen Sie die WebSocket-URL in client/index.js
+Stellen Sie sicher, dass beide Services laufen
+Redis Fehler:
 
-Redis-Plugin für Multiplayer-Kommunikation
+Server funktioniert auch ohne Redis (In-Memory Fallback)
+Prüfen Sie REDIS_URL Umgebungsvariable
+CORS Probleme:
 
-Nach dem Build → Öffne die URLs und teste dein Spiel!
+Passen Sie CORS-Einstellungen in server/index.js an
+Für Production: Spezifische Domains konfigurieren
+📄 Lizenz
+MIT License - Verwenden Sie es für alles!
 
-🧠 Idee
-Diese Vorlage entstand im Rahmen eines Hackathons mit dem Ziel, ein simples, aber erweiterbares Realtime-Spiel zu schaffen. Denkbar sind u.a.:
+🤝 Contributing
+Fork das Repository
+Feature Branch erstellen
+Changes committen
+Pull Request öffnen
+Gebaut für die Railway Community 🚂
 
-🧩 Erweiterung zu einem richtigen Minigame
+Haben Sie Fragen? Öffnen Sie ein Issue oder kontaktieren Sie uns auf Discord!
 
-🧠 Integration von KI-Bots oder NPCs
-
-🎯 Lobby-Auswahl oder Matchmaking
-
-⚔️ PvP-Kampfmechaniken oder Animationen
-
-📜 Lizenz
-MIT © [Ökotester]

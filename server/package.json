@@ -1,0 +1,31 @@
+{
+  "name": "multiplayer-lobby-server",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Real-time multiplayer lobby server with WebSockets",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "health": "node healthcheck.js"
+  },
+  "keywords": [
+    "multiplayer",
+    "websocket",
+    "socket.io",
+    "realtime",
+    "game",
+    "lobby"
+  ],
+  "author": "Railway Template",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2",
+    "ioredis": "^5.3.2",
+    "cors": "^2.8.5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
