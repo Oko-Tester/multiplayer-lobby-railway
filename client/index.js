@@ -28,7 +28,7 @@ function updateStatus(status, message) {
   statusIndicator.className = `status-indicator ${status}`;
 
   if (status === "connected") {
-    serverInfo.textContent = `🔗 Verbunden mit Server`;
+    serverInfo.textContent = `🔗 Connected with Server`;
   }
 }
 
