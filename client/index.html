@@ -38,86 +38,6 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     }
 
-    .ui-overlay {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      z-index: 100;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border-radius: 15px;
-      padding: 20px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-      border: 1px solid rgba(255,255,255,0.2);
-      min-width: 280px;
-    }
-
-    .status-card {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 15px;
-    }
-
-    .status-indicator {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: #ef4444;
-      animation: pulse 2s infinite;
-    }
-
-    .status-indicator.connected {
-      background: #22c55e;
-    }
-
-    .status-text {
-      font-weight: 500;
-      font-size: 14px;
-      color: #374151;
-    }
-
-    .server-info {
-      font-size: 11px;
-      color: #6b7280;
-      background: #f3f4f6;
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-family: 'Monaco', 'Menlo', monospace;
-    }
-
-    .instructions {
-      margin-top: 15px;
-      padding: 15px;
-      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-      border-radius: 10px;
-      color: white;
-    }
-
-    .instructions h3 {
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-
-    .instructions ul {
-      list-style: none;
-      font-size: 12px;
-      line-height: 1.5;
-    }
-
-    .instructions li {
-      margin-bottom: 4px;
-      position: relative;
-      padding-left: 16px;
-    }
-
-    .instructions li:before {
-      content: "→";
-      position: absolute;
-      left: 0;
-      color: #a855f7;
-    }
 
     #chat-panel {
       width: 350px;
@@ -299,28 +219,6 @@
   <div class="game-container">
     <div id="game-area">
       <div id="game-container"></div>
-      
-      <div class="ui-overlay">
-        <div class="status-card">
-          <div class="status-indicator" id="status-indicator"></div>
-          <div class="status-text" id="status-text">
-            <span class="loading-spinner"></span> Verbinde...
-          </div>
-        </div>
-        
-        <div class="server-info" id="server-info">
-          Server wird geladen...
-        </div>
-        
-        <div class="instructions">
-          <h3>🎮 Spielanleitung</h3>
-          <ul>
-            <li>Klicken Sie zum Bewegen</li>
-            <li>Chatten Sie mit anderen Spielern</li>
-            <li>Teilen Sie die URL mit Freunden</li>
-          </ul>
-        </div>
-      </div>
     </div>
 
     <div id="chat-panel">
