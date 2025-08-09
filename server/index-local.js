@@ -1,82 +1,56 @@
 import express from "express";
 import { createServer } from "http";
 import { Server as IOServer } from "socket.io";
-import { createAdapter } from "@socket.io/redis-adapter";
-import { createClient } from "redis";
 import cors from "cors";
 
 const app = express();
 const httpServer = createServer(app);
 
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:8080", "http://127.0.0.1:8080"],
+    methods: ["GET", "POST"],
+  })
+);
 app.use(express.json());
 
 const io = new IOServer(httpServer, {
   cors: {
-    origin: "*",
+    origin: ["http://localhost:8080", "http://127.0.0.1:8080"],
     methods: ["GET", "POST"],
   },
 });
 
-let redisClient;
-if (process.env.REDIS_URL) {
-  try {
-    const pubClient = createClient({ url: process.env.REDIS_URL });
-    const subClient = pubClient.duplicate();
-
-    await Promise.all([pubClient.connect(), subClient.connect()]);
-
-    io.adapter(createAdapter(pubClient, subClient));
-    redisClient = pubClient;
-    console.log("✅ Redis connected and adapter configured");
-  } catch (error) {
-    console.warn(
-      "⚠️ Redis connection failed, using in-memory storage:",
-      error.message
-    );
-  }
-} else {
-  console.log("ℹ️ No REDIS_URL provided, using in-memory storage");
-}
-
 const lobbies = new Map();
 
-async function addPlayerToLobby(lobbyId, playerId, username) {
-  if (redisClient) {
-    await redisClient.hset(`lobby:${lobbyId}`, playerId, username);
-  } else {
-    if (!lobbies.has(lobbyId)) {
-      lobbies.set(lobbyId, new Map());
-    }
-    lobbies.get(lobbyId).set(playerId, username);
+function addPlayerToLobby(lobbyId, playerId, username) {
+  if (!lobbies.has(lobbyId)) {
+    lobbies.set(lobbyId, new Map());
   }
+  lobbies.get(lobbyId).set(playerId, username);
 }
 
-async function removePlayerFromLobby(lobbyId, playerId) {
-  if (redisClient) {
-    await redisClient.hdel(`lobby:${lobbyId}`, playerId);
-  } else {
-    if (lobbies.has(lobbyId)) {
-      lobbies.get(lobbyId).delete(playerId);
+function removePlayerFromLobby(lobbyId, playerId) {
+  if (lobbies.has(lobbyId)) {
+    lobbies.get(lobbyId).delete(playerId);
+    if (lobbies.get(lobbyId).size === 0) {
+      lobbies.delete(lobbyId);
     }
   }
 }
 
-async function getLobbyPlayers(lobbyId) {
-  if (redisClient) {
-    return await redisClient.hgetall(`lobby:${lobbyId}`);
-  } else {
-    const lobby = lobbies.get(lobbyId);
-    return lobby ? Object.fromEntries(lobby) : {};
-  }
+function getLobbyPlayers(lobbyId) {
+  const lobby = lobbies.get(lobbyId);
+  return lobby ? Object.fromEntries(lobby) : {};
 }
 
 io.on("connection", (socket) => {
   console.log(`👤 Player connected: ${socket.id}`);
+  console.log(`📊 Total connections: ${io.engine.clientsCount}`);
 
-  socket.on("join-lobby", async ({ username, lobbyId = "main" }) => {
+  socket.on("join-lobby", ({ username, lobbyId = "main" }) => {
     try {
-      await addPlayerToLobby(lobbyId, socket.id, username);
+      addPlayerToLobby(lobbyId, socket.id, username);
       socket.join(lobbyId);
 
       socket.to(lobbyId).emit("player-joined", {
@@ -85,10 +59,15 @@ io.on("connection", (socket) => {
         timestamp: Date.now(),
       });
 
-      const existingPlayers = await getLobbyPlayers(lobbyId);
+      const existingPlayers = getLobbyPlayers(lobbyId);
       socket.emit("lobby-state", { players: existingPlayers });
 
       console.log(`🎮 ${username} joined lobby: ${lobbyId}`);
+      console.log(
+        `👥 Lobby ${lobbyId} now has ${
+          Object.keys(existingPlayers).length
+        } players`
+      );
     } catch (error) {
       console.error("Error joining lobby:", error);
       socket.emit("error", { message: "Failed to join lobby" });
@@ -96,6 +75,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("player-action", ({ lobbyId = "main", action, data }) => {
+    console.log(`🎯 Action from ${socket.id}: ${action}`);
     socket.to(lobbyId).emit("player-action", {
       id: socket.id,
       action,
@@ -104,12 +84,14 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.on("chat-message", async ({ lobbyId = "main", message }) => {
+  socket.on("chat-message", ({ lobbyId = "main", message }) => {
     if (!message || message.trim().length === 0) return;
 
     try {
-      const players = await getLobbyPlayers(lobbyId);
+      const players = getLobbyPlayers(lobbyId);
       const username = players[socket.id] || "Anonymous";
+
+      console.log(`💬 Chat from ${username}: ${message.trim()}`);
 
       io.to(lobbyId).emit("chat-message", {
         id: socket.id,
@@ -122,19 +104,25 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("disconnect", async () => {
+  socket.on("disconnect", () => {
     try {
       const rooms = Array.from(socket.rooms);
       for (const room of rooms) {
         if (room !== socket.id) {
-          await removePlayerFromLobby(room, socket.id);
+          const players = getLobbyPlayers(room);
+          const username = players[socket.id] || "Unknown";
+
+          removePlayerFromLobby(room, socket.id);
           socket.to(room).emit("player-left", {
             id: socket.id,
+            username,
             timestamp: Date.now(),
           });
+
+          console.log(`👋 ${username} left lobby: ${room}`);
         }
       }
-      console.log(`👋 Player disconnected: ${socket.id}`);
+      console.log(`📊 Total connections: ${io.engine.clientsCount}`);
     } catch (error) {
       console.error("Error during disconnect:", error);
     }
@@ -146,38 +134,47 @@ app.get("/health", (req, res) => {
     status: "healthy",
     timestamp: new Date().toISOString(),
     connections: io.engine.clientsCount,
+    environment: "local",
   });
 });
 
-app.get("/api/lobbies", async (req, res) => {
+app.get("/api/lobbies", (req, res) => {
   try {
     const stats = {
       total_connections: io.engine.clientsCount,
       lobbies: {},
     };
 
-    if (redisClient) {
-      const keys = await redisClient.keys("lobby:*");
-      for (const key of keys) {
-        const lobbyId = key.replace("lobby:", "");
-        const playerCount = await redisClient.hlen(key);
-        stats.lobbies[lobbyId] = { players: playerCount };
-      }
-    } else {
-      for (const [lobbyId, players] of lobbies.entries()) {
-        stats.lobbies[lobbyId] = { players: players.size };
-      }
+    for (const [lobbyId, players] of lobbies.entries()) {
+      stats.lobbies[lobbyId] = {
+        players: players.size,
+        playerList: Array.from(players.values()),
+      };
     }
 
     res.json(stats);
   } catch (error) {
+    console.error("Error getting lobby stats:", error);
     res.status(500).json({ error: "Failed to get lobby stats" });
   }
+});
+
+app.get("/", (req, res) => {
+  res.json({
+    message: "Multiplayer Lobby Server",
+    status: "running",
+    endpoints: {
+      health: "/health",
+      lobbies: "/api/lobbies",
+    },
+  });
 });
 
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {
   console.log(`🚀 Multiplayer Server running on port ${PORT}`);
+  console.log(`🌐 Server: http://localhost:${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
   console.log(`📈 Lobby stats: http://localhost:${PORT}/api/lobbies`);
+  console.log(`📱 Client should connect to: http://localhost:8080`);
 });
