@@ -20,6 +20,7 @@ const io = new IOServer(httpServer, {
 
 let redisClient;
 if (process.env.REDIS_URL) {
+  console.log("got redisURL");
   try {
     const pubClient = createClient({ url: process.env.REDIS_URL });
     const subClient = pubClient.duplicate();
@@ -177,5 +178,5 @@ app.get("/api/lobbies", async (req, res) => {
 
 const URL = process.env.RAILWAY_PUBLIC_DOMAIN;
 httpServer.listen(URL, () => {
-  console.log(`🚀 Multiplayer Server running on ${URL}`);
+  console.log(`🚀 Multiplayer Server running on http://${URL}`);
 });
