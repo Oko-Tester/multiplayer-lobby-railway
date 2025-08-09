@@ -1,10 +1,10 @@
 FROM nginx:alpine
 
 # Nginx Konfiguration
-COPY . /etc/nginx/nginx.conf
+COPY /nginx.conf /etc/nginx/nginx.conf
 
 # Static files kopieren
-COPY . /usr/share/nginx/html/
+COPY / /usr/share/nginx/html/
 
 # Port freigeben
 EXPOSE 80
