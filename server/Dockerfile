@@ -3,13 +3,13 @@ FROM node:18-alpine
 WORKDIR /app
 
 # Zuerst package.json kopieren für besseres Caching
-COPY /package*.json ./
+COPY .package*.json ./
 
 # Dependencies installieren
 RUN npm ci --only=production && npm cache clean --force
 
 # Quellcode kopieren
-COPY / ./
+COPY . ./
 
 # Port freigeben
 EXPOSE 3000
