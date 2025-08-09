@@ -19,16 +19,12 @@ const socketUrl = (() => {
 console.log("Connecting to:", socketUrl);
 const socket = io(socketUrl);
 
-const statusIndicator = document.getElementById("status-indicator");
-const statusText = document.getElementById("status-text");
-const serverInfo = document.getElementById("server-info");
-
-function updateStatus(status, message) {
-  statusText.innerHTML = message;
-  statusIndicator.className = `status-indicator ${status}`;
-
-  if (status === "connected") {
-    serverInfo.textContent = `🔗 Connected with Server`;
+function updateChatStatus(status, message) {
+  const chatHeader = document.querySelector(".chat-header h2");
+  if (chatHeader) {
+    const statusIndicator =
+      status === "connected" ? "🟢" : status === "connecting" ? "🟡" : "🔴";
+    chatHeader.textContent = `${statusIndicator} Live Chat`;
   }
 }
 
@@ -94,20 +90,17 @@ class LobbyScene extends Phaser.Scene {
 
     socket.on("connect", () => {
       console.log("Connected to server");
-      updateStatus(
-        "connected",
-        `🟢 Connected as: <strong>${this.username}</strong>`
-      );
+      updateChatStatus("connected");
     });
 
     socket.on("disconnect", () => {
       console.log("Disconnected from server");
-      updateStatus("disconnected", "🔴 Disconnected");
+      updateChatStatus("disconnected");
     });
 
     socket.on("connect_error", (error) => {
       console.error("Connection error:", error);
-      updateStatus("error", "❌ Connection failed");
+      updateChatStatus("error");
     });
 
     socket.on("lobby-state", ({ players }) => {
@@ -126,7 +119,7 @@ class LobbyScene extends Phaser.Scene {
       console.log(`Player joined: ${username} (${id})`);
       if (id !== socket.id) {
         this.createPlayer(id, username);
-        this.showNotification(`${username} has joined`, "#22c55e");
+        this.showNotification(`${username} ist beigetreten`, "#22c55e");
       }
       this.updatePlayerCount();
     });
@@ -136,7 +129,7 @@ class LobbyScene extends Phaser.Scene {
       if (this.players[id]) {
         const username = this.players[id].username;
         this.removePlayer(id);
-        this.showNotification(`${username} has left`, "#ef4444");
+        this.showNotification(`${username} hat verlassen`, "#ef4444");
       }
       this.updatePlayerCount();
     });
@@ -159,7 +152,7 @@ class LobbyScene extends Phaser.Scene {
       .text(
         this.cameras.main.centerX,
         this.cameras.main.height - 50,
-        "Click somewhere to move",
+        "Klicken Sie irgendwo um sich zu bewegen",
         {
           fontSize: "14px",
           fill: "#e0e7ff",
@@ -376,8 +369,7 @@ if (msgInput && messages) {
   });
 }
 
-updateStatus("connecting", '<span class="loading-spinner"></span> Connect...');
-serverInfo.textContent = `🔗 ${socketUrl}`;
+updateChatStatus("connecting");
 
 console.log("Client initialized");
 socket.on("connect", () => console.log("Socket connected:", socket.id));

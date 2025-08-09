@@ -41,98 +41,6 @@
       position: relative;
     }
 
-    .ui-overlay {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      z-index: 1000;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border-radius: 15px;
-      padding: 20px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-      border: 1px solid rgba(255,255,255,0.2);
-      min-width: 280px;
-      max-width: 350px;
-    }
-
-    .status-card {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 15px;
-    }
-
-    .status-indicator {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: #ef4444;
-      animation: pulse 2s infinite;
-    }
-
-    .status-indicator.connected {
-      background: #22c55e;
-    }
-
-    .status-indicator.connecting {
-      background: #f59e0b;
-    }
-
-    .status-text {
-      font-weight: 500;
-      font-size: 14px;
-      color: #374151;
-    }
-
-    .server-info {
-      font-size: 11px;
-      color: #6b7280;
-      background: #f3f4f6;
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-family: 'Monaco', 'Menlo', monospace;
-      word-break: break-all;
-    }
-
-    .instructions {
-      margin-top: 15px;
-      padding: 15px;
-      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-      border-radius: 10px;
-      color: white;
-    }
-
-    .instructions h3 {
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .instructions ul {
-      list-style: none;
-      font-size: 12px;
-      line-height: 1.6;
-    }
-
-    .instructions li {
-      margin-bottom: 4px;
-      position: relative;
-      padding-left: 16px;
-    }
-
-    .instructions li:before {
-      content: "→";
-      position: absolute;
-      left: 0;
-      color: #a855f7;
-      font-weight: bold;
-    }
-
-    /* Chat Panel */
     .chat-panel {
       width: 350px;
       background: rgba(255, 255, 255, 0.98);
@@ -274,10 +182,6 @@
       .chat-panel {
         width: 300px;
       }
-      
-      .ui-overlay {
-        max-width: 250px;
-      }
     }
 
     @media (max-width: 768px) {
@@ -292,14 +196,6 @@
       .chat-panel {
         width: 100%;
         height: 40vh;
-      }
-      
-      .ui-overlay {
-        top: 10px;
-        left: 10px;
-        right: 10px;
-        max-width: none;
-        min-width: auto;
       }
 
       #messages {
@@ -325,7 +221,6 @@
       background: #94a3b8;
     }
 
-    /* Ensure Phaser canvas fits properly */
     canvas {
       display: block !important;
       max-width: 100% !important;
@@ -338,6 +233,9 @@
     <div class="game-section">
       <div id="game-container"></div>
       
+
+    </div>
+
     <div class="chat-panel">
       <div class="chat-header">
         <div class="chat-icon">💬</div>
