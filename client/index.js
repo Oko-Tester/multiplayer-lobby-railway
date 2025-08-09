@@ -1,19 +1,4 @@
-// Socket.IO Client-Verbindung - automatische Server-Erkennung
-let socketUrl;
-if (
-  window.location.hostname === "localhost" ||
-  window.location.hostname === "127.0.0.1"
-) {
-  // Lokale Entwicklung
-  socketUrl = "http://localhost:3000";
-} else {
-  // Production - Railway Domain ersetzen
-  const serverDomain = window.location.hostname.replace(
-    "multiplayer-client",
-    "multiplayer-server"
-  );
-  socketUrl = `https://${serverDomain}`;
-}
+const socketUrl = process.env.SERVER_URL;
 
 console.log("Connecting to:", socketUrl);
 const socket = io(socketUrl);
